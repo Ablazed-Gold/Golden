@@ -2392,3 +2392,10 @@ html.js [data-enter="power"].is-in .work-stage{clip-path:inset(0 0 0 0);transfor
     linear-gradient(var(--ink-2),var(--ink-2)) right bottom/1px 10px no-repeat;
   opacity:.55;
 }
+
+
+/* build stamp — lets you confirm you are looking at the latest deploy */
+.foot-build{
+  margin:.7rem 0 0;font:500 .58rem/1 var(--mono);letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-3);
+}
