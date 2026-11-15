@@ -2,6 +2,9 @@
 
 个人博客 / 作品集。深色工业界面，单一信号黄，**整页 3D**：加载页、首屏、章节构造、演示图、魔方全部是真 3D 场景，文字与画面用机械动效组装进场；首页只留必要信息，往下滚才逐章展开。
 
+在线地址：**https://ablazed-gold.github.io/Golden/** （GitHub Pages，免费域名）
+仓库：https://github.com/Ablazed-Gold/Golden
+
 打开方式：**双击 `index.html`**（不需要构建、不需要服务器）。离线也能用，字体与图片都已本地化。
 
 ![首屏](preview/hero.png)
@@ -146,6 +149,15 @@ node cube-final.js  # 魔方打乱-还原、减少动效、重挂载
 ```
 
 其它冒烟脚本默认带 `?nocine=1`，跳过第 07 章过场以便快速翻页；想看完整过场就去掉这个参数（或直接双击 `index.html`）。脚本用 `file://` 直接打开页面，与用户双击打开的环境一致。
+
+## 部署（GitHub Pages）
+
+站点是纯静态的，不需要构建：仓库根目录就是站点根目录。
+
+- 线上：`https://ablazed-gold.github.io/Golden/`
+- Pages 源：`main` 分支 `/` 根目录，`.nojekyll` 让 GitHub 跳过 Jekyll
+- 更新：本地改完 `git add -A && git commit -m "..." && git push`，Pages 会自动重新发布（约半分钟）
+- 自定义域名（可选）：在仓库 Settings → Pages 填 Custom domain，并在域名服务商加一条 CNAME 指向 `ablazed-gold.github.io`；想要根域名就用 `Ablazed-Gold.github.io` 作为仓库名
 
 ## 许可与来源
 
