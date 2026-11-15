@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark" data-ef-accent="yellow">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>GOLDEN · 金灿灿</title>
+<meta name="description" content="Golden 的个人主页。系统、模型、魔方与创造。" />
+<meta name="theme-color" content="#141414" />
+<meta name="color-scheme" content="dark light" />
+<link rel="icon" href="assets/img/favicon.png" type="image/png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="GOLDEN · 金灿灿" />
+<meta property="og:description" content="Linux 内核、C++20 服务器、自训 1B 模型、魔方与 3D 打印。作品与近况。" />
+<link rel="stylesheet" href="assets/css/font.css" />
+<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/arch.css" />
+<script>
+  /* set the saved theme/lang before first paint */
+  try {
+    var __t = localStorage.getItem('golden-theme');
+    if (__t === 'light') document.documentElement.dataset.theme = 'light';
+    var __l = localStorage.getItem('golden-lang');
+    if (__l === 'en') document.documentElement.lang = 'en';
+  } catch (e) {}
+  /* one WebGL probe for all scenes: no context = no renderer, no errors */
+  try {
+    var __c = document.createElement('canvas');
+    window.__hasWebGL = !!(window.WebGLRenderingContext && (__c.getContext('webgl2') || __c.getContext('webgl') || __c.getContext('experimental-webgl')));
+  } catch (e) { window.__hasWebGL = false; }
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要内容 / Skip to content</a>
+<div class="cursor" id="cursor" aria-hidden="true"><i class="cursor-dot"></i><i class="cursor-cross"></i></div>
+<div class="tri" id="tri" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+<canvas class="construct-canvas" id="construct-canvas" aria-hidden="true"></canvas>
+
+<!-- ── BOOT ─────────────────────────────────────────────── -->
+<div class="boot" id="boot" role="presentation">
+  <canvas class="boot-canvas" id="boot-canvas"></canvas>
+  <div class="boot-ground" aria-hidden="true"></div>
+  <div class="boot-hud" aria-hidden="true">
+    <span class="boot-hud-tl">GOLDEN</span>
+    <span class="boot-hud-tr">2026</span>
+  </div>
+  <div class="boot-core">
+    <p class="boot-word" aria-hidden="true"><span>G</span><span>O</span><span>L</span><span>D</span><span>E</span><span>N</span></p>
+    <p class="boot-kicker" id="boot-kicker">// GOLDEN</p>
+  </div>
+  <div class="boot-foot">
+    <ol class="boot-steps" id="boot-steps" aria-hidden="true"></ol>
+    <div class="boot-progress" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <p class="boot-count"><b id="boot-count">000</b><span>%</span></p>
+  </div>
+  <div class="boot-shutter boot-shutter-a" aria-hidden="true"></div>
+  <div class="boot-shutter boot-shutter-b" aria-hidden="true"></div>
+  <button class="boot-skip" id="boot-skip" type="button">SKIP</button>
+</div>
+
+<!-- ── TOP BAR ──────────────────────────────────────────── -->
+<div class="topbar" id="topbar">
+  <a class="brand" href="#top" aria-label="GOLDEN">
+    <span class="brand-mark" aria-hidden="true"></span>
+    GOLDEN
+  </a>
+  <nav class="nav" id="nav" aria-label="Sections"></nav>
+  <div class="topbar-tools">
+    <button class="tool" id="lang-toggle" type="button" aria-label="Switch language"><span class="tool-key" id="lang-key">中</span><span class="tool-val" id="lang-val">EN</span></button>
+    <button class="tool" id="theme-toggle" type="button" aria-label="Theme"><span class="tool-key" id="theme-label">DARK</span></button>
+    <button class="tool menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span><span></span><span></span><em>MENU</em></button>
+  </div>
+  <div class="topbar-trace" aria-hidden="true"><i id="scroll-trace"></i></div>
+</div>
+<div class="menu" id="menu" hidden>
+  <nav class="menu-nav" id="menu-nav"></nav>
+  <p class="menu-word" aria-hidden="true">GOLDEN</p>
+  <div class="menu-foot">
+    <p class="menu-meta">GOLDEN / 2026</p>
+    <div class="menu-tools">
+      <button class="tool" data-menu-lang type="button">中 / EN</button>
+      <button class="tool" data-menu-theme type="button">DARK / LIGHT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHAPTER RAIL ─────────────────────────────────────── -->
+<nav class="rail" id="rail" aria-label="Chapters"></nav>
+
+<main id="main">
+  <!-- ── HERO ───────────────────────────────────────────── -->
+  <section class="hero" id="top" data-hero>
+    <canvas class="hero-canvas" id="hero-canvas" aria-hidden="true"></canvas>
+    <div class="hero-ground" aria-hidden="true"><div class="hero-grid"></div></div>
+    <div class="hero-inner">
+      <p class="hero-id">
+        <img class="hero-avatar" src="assets/img/avatar-square.jpg" alt="Golden" width="640" height="640" />
+        <span class="hero-id-tag">GOLDEN / 2026</span>
+      </p>
+      <h1 class="wordmark" data-hero-word>
+        <span class="wordmark-solid" data-hero-word-solid>GOLDEN</span>
+        <span class="wordmark-hollow" data-hero-word-hollow>金灿灿</span>
+      </h1>
+      <div class="hero-foot">
+        <p class="hero-tagline" data-t="hero.tagline"></p>
+        <a class="hero-enter" href="#about"><span data-t="ui.enterLabel">进入</span><i aria-hidden="true"></i></a>
+      </div>
+    </div>
+    <div class="hero-side" aria-hidden="true">
+      <span class="hero-side-tag">SCROLL</span>
+      <i></i>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ──────────────────────────────────────────── -->
+  <section class="sec sec-about" id="about" data-sec="01" data-enter="split">
+    <header class="sec-head">
+      <span class="sec-no hollow" aria-hidden="true">01</span>
+      <h2 data-t="about.title"></h2>
+    </header>
+    <div class="about">
+      <figure class="portrait">
+        <div class="portrait-frame" data-tilt>
+          <img src="assets/img/portrait.jpg" alt="Golden 的头像" width="880" height="1100" />
+          <span class="portrait-scan" aria-hidden="true"></span>
+          <span class="portrait-no" aria-hidden="true">NO.001</span>
+        </div>
+        <figcaption class="portrait-cap">
+          <span class="p-name">GOLDEN</span>
+          <span class="p-role" data-t="about.portrait.role"></span>
+        </figcaption>
+        <p class="portrait-note" data-t="about.portrait.note"></p>
+      </figure>
+      <div class="about-copy">
+        <p class="about-lead" data-t="about.lead"></p>
+        <p class="about-p" data-t="about.paras.0"></p>
+        <p class="about-p" data-t="about.paras.1"></p>
+      </div>
+      <ul class="stats" data-list="about.stats"></ul>
+    </div>
+    <ol class="creed" id="creed"></ol>
+  </section>
+
+  <!-- ── SKILLS ─────────────────────────────────────────── -->
+  <section class="sec" id="skills" data-sec="02" data-enter="rows">
+    <header class="sec-head">
+      <span class="sec-no hollow" aria-hidden="true">02</span>
+      <h2 data-t="skills.title"></h2>
+    </header>
+    <div class="skills">
+      <div class="skills-index">
+        <ol class="skill-rows" id="skill-rows"></ol>
+      </div>
+      <div class="skill-panel" id="skill-panel">
+        <span class="skill-panel-no hollow" id="skill-no">01</span>
+        <div class="skill-panel-main">
+          <p class="eyebrow" id="skill-en">SYS</p>
+          <h3 id="skill-zh">系统</h3>
+          <ul class="chips" id="skill-items"></ul>
+        </div>
+        <div class="skill-stage" aria-hidden="true">
+          <canvas class="specimen-canvas" data-specimen="skills"></canvas>
+          <div class="specimen-fallback" id="skill-art"></div>
+          <div class="stage-hud"><span>// VISUAL</span><b id="skill-count">01 / 04</b><em>ACTIVE</em></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WORKS ──────────────────────────────────────────── -->
+  <section class="sec" id="works" data-sec="03" data-enter="power">
+    <header class="sec-head">
+      <span class="sec-no hollow" aria-hidden="true">03</span>
+      <h2 data-t="works.title"></h2>
+    </header>
+    <div class="works">
+      <ol class="work-rows" id="work-rows"></ol>
+      <aside class="work-detail" id="work-detail" aria-live="polite">
+        <div class="work-stage" aria-hidden="true">
+          <canvas class="specimen-canvas" data-specimen="works"></canvas>
+          <div class="specimen-fallback" id="work-art"></div>
+          <div class="stage-hud"><span>// BLUEPRINT</span><b id="work-count">01 / 04</b><em>BUILD</em></div>
+        </div>
+        <p class="work-detail-no hollow" id="work-no">001</p>
+        <div class="work-detail-body">
+          <p class="eyebrow" id="work-en"></p>
+          <h3 id="work-zh"></h3>
+          <p class="work-desc" id="work-desc"></p>
+          <ul class="chips" id="work-tags"></ul>
+        </div>
+        <p class="work-role"><span class="field-k">ROLE</span><span class="field-v" id="work-role"></span></p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ── MODEL ──────────────────────────────────────────── -->
+  <section class="sec sec-model" id="ai" data-sec="04" data-enter="arch">
+    <header class="sec-head">
+      <span class="sec-no hollow" aria-hidden="true">04</span>
+      <h2 data-t="ai.title"></h2>
+    </header>
+    <div class="model">
+      <p class="model-lead" data-t="ai.lead"></p>
+      <ul class="model-fields" data-list="ai.fields"></ul>
+      <div class="arch-3d" data-tilt><div class="arch-root" id="arch-root"></div></div>
+    </div>
+  </section>
+
+  <!-- ── KINETIC ────────────────────────────────────────── -->
+  <div class="kinetic" id="kinetic" aria-hidden="true">
+    <div class="kinetic-track" id="kinetic-track"></div>
+  </div>
+
+  <!-- ── ARENA ──────────────────────────────────────────── -->
+  <section class="sec sec-arena" id="arena" data-sec="05" data-enter="shutter">
+    <div class="shutter shutter-top" aria-hidden="true"></div>
+    <div class="shutter shutter-bottom" aria-hidden="true"></div>
+    <header class="sec-head">
+      <span class="sec-no hollow" aria-hidden="true">05</span>
+      <h2 data-t="arena.title"></h2>
+    </header>
+    <div class="arena">
+      <div class="arena-event">
+        <div class="arena-event-head">
+          <p class="eyebrow">// <span id="arena-en">EVENT / 01</span></p>
+          <h3 id="arena-title">PAYATHON2026</h3>
+        </div>
+        <div class="arena-event-body">
+          <p class="arena-status"><span class="flag" id="arena-state"></span><span id="arena-note"></span></p>
+          <ul class="tracks" id="arena-tracks"></ul>
+        </div>
+        <div class="arena-lines" aria-hidden="true"></div>
+      </div>
+      <div class="roadmap-wrap">
+        <ol class="roadmap" id="roadmap"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CUBE ───────────────────────────────────────────── -->
+  <section class="sec sec-cube" id="cube" data-sec="06" data-enter="cage">
+    <header class="sec-head">
+      <span class="sec-no hollow" aria-hidden="true">06</span>
+      <h2 data-t="cube.title"></h2>
+    </header>
+    <div class="cube-grid">
+      <div class="cube-stage" id="cube-root">
+        <canvas class="cube-canvas" aria-label="魔方"></canvas>
+        <p class="cube-fallback">3D 需要 WebGL</p>
+        <div class="cube-hud">
+          <span class="cube-state" data-cube-state>READY</span>
+          <span class="cube-read"><em>MOVES</em><b data-cube-moves>0</b></span>
+          <span class="cube-read"><em>TIME</em><b data-cube-time>0.00</b></span>
+        </div>
+        <div class="cube-actions">
+          <button class="btn sm" type="button" data-cube-action="scramble" data-t="cube.scramble"></button>
+          <button class="btn sm go" type="button" data-cube-action="solve" data-t="cube.solve"></button>
+          <button class="btn sm" type="button" data-cube-action="reset" data-t="cube.reset"></button>
+        </div>
+        <span class="cube-corner tl" aria-hidden="true"></span>
+        <span class="cube-corner tr" aria-hidden="true"></span>
+        <span class="cube-corner bl" aria-hidden="true"></span>
+        <span class="cube-corner br" aria-hidden="true"></span>
+      </div>
+      <div class="cube-side">
+        <ul class="cube-stats" data-list="cube.stats"></ul>
+        <p class="cube-hint" data-t="cube.hint"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAB ────────────────────────────────────────────── -->
+  <section class="sec sec-fab" id="fab" data-sec="07" data-enter="layers">
+    <div class="fab-city-bg" id="fab-city-bg" aria-hidden="true"></div>
+    <header class="sec-head">
+      <span class="sec-no hollow" aria-hidden="true">07</span>
+      <h2 data-t="fab.title"></h2>
+    </header>
+    <div class="fab">
+      <div class="fab-side">
+        <p class="fab-lead" data-t="fab.lead"></p>
+      </div>
+      <figure class="fab-art" aria-hidden="true">
+        <canvas class="specimen-canvas" data-specimen="fab"></canvas>
+        <div class="specimen-fallback">
+          <svg viewBox="0 0 420 380" fill="none" stroke="currentColor" stroke-width="1.2">
+            <g transform="translate(210 190)">
+              <path d="M-150 -92 L150 -92 L150 92 L-150 92 Z" opacity=".45" />
+              <path d="M-120 -62 L120 -62 L120 62 L-120 62 Z" opacity=".3" />
+              <path d="M-150 -92 L-150 -132 M150 -92 L150 -132 M-150 92 L-150 132 M150 92 L150 132" opacity=".5" />
+              <path d="M-84 -132 L84 -132 M-84 132 L84 132" opacity=".5" />
+              <path d="M0 -132 L0 -62" />
+              <path d="M-14 -62 L14 -62 L8 -30 L-8 -30 Z" />
+              <g class="fab-layers">
+                <path d="M-46 24 L46 24" /><path d="M-46 12 L46 12" /><path d="M-46 0 L46 0" />
+                <path d="M-46 -12 L46 -12" /><path d="M-46 -24 L46 -24" /><path d="M-46 -36 L46 -36" />
+              </g>
+              <path d="M-46 30 L46 30 L60 42 L-32 42 Z" opacity=".6" />
+              <path d="M-96 62 L96 62" stroke-dasharray="3 4" opacity=".6" />
+              <path d="M-96 74 L-96 62 M96 74 L96 62" opacity=".5" />
+            </g>
+            <text x="16" y="366" font-family="Saira, sans-serif" font-size="10" letter-spacing="2" stroke="none" fill="currentColor">FDM / PLA</text>
+          </svg>
+        </div>
+      </figure>
+      <ol class="fab-stages" id="fab-stages"></ol>
+    </div>
+  <button class="btn fab-replay" id="fab-replay" type="button" data-t="fab.cinema.replay"></button>
+
+  </section>
+
+  <!-- ── LIFE ───────────────────────────────────────────── -->
+  <section class="sec sec-life" id="life" data-sec="08" data-enter="wipe">
+    <header class="sec-head">
+      <span class="sec-no hollow" aria-hidden="true">08</span>
+      <h2 data-t="life.title"></h2>
+    </header>
+    <div class="life">
+      <div class="life-left">
+        <div class="coverflow" id="coverflow">
+          <div class="coverflow-stage" id="coverflow-stage"></div>
+          <div class="coverflow-ui">
+            <button class="coverflow-btn prev" type="button" data-cf="prev" aria-label="上一张">‹</button>
+            <p class="coverflow-cap"><b id="cf-caption"></b><span id="cf-index"></span></p>
+            <button class="coverflow-btn next" type="button" data-cf="next" aria-label="下一张">›</button>
+          </div>
+        </div>
+        <ol class="life-blocks" id="life-blocks"></ol>
+      </div>
+      <div class="puzzle" id="puzzle">
+        <div class="puzzle-head">
+          <h4 id="puzzle-title">推一格</h4>
+          <p class="puzzle-hint" id="puzzle-hint"></p>
+        </div>
+        <div class="puzzle-grid" id="puzzle-grid" data-tilt role="grid" aria-label="15 puzzle"></div>
+        <div class="puzzle-foot">
+          <button class="btn sm" type="button" data-puzzle="scramble" id="puzzle-scramble"></button>
+          <button class="btn sm" type="button" data-puzzle="reset" id="puzzle-reset"></button>
+          <span class="puzzle-read"><b id="puzzle-moves">0</b> <span id="puzzle-moves-label"></span></span>
+          <span class="puzzle-state" id="puzzle-state" aria-live="polite"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ────────────────────────────────────────── -->
+  <section class="sec sec-contact" id="contact" data-sec="09" data-enter="fill">
+    <header class="sec-head">
+      <span class="sec-no hollow" aria-hidden="true">09</span>
+      <h2 data-t="contact.title"></h2>
+    </header>
+    <div class="contact">
+      <ul class="contact-rows" id="contact-rows"></ul>
+    </div>
+    <div class="contact-word" aria-hidden="true">GOLDEN</div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p class="foot-line" data-t="footer.line"></p>
+  <div class="foot-tools">
+    <button class="tool" type="button" data-foot-lang>中 / EN</button>
+    <button class="tool" type="button" data-foot-theme>DARK / LIGHT</button>
+    <a class="tool" href="#top" data-t="ui.backTop"></a>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="照片">
+  <button class="lightbox-close" id="lightbox-close" type="button" aria-label="关闭">×</button>
+  <button class="lightbox-nav prev" id="lightbox-prev" type="button" aria-label="上一张">‹</button>
+  <img id="lightbox-img" src="" alt="" />
+  <p class="lightbox-cap"><span id="lightbox-index"></span><b id="lightbox-cap"></b></p>
+  <button class="lightbox-nav next" id="lightbox-next" type="button" aria-label="下一张">›</button>
+</div>
+
+  <div class="fab-cinema" id="fab-cinema" aria-hidden="true">
+    <canvas id="city-canvas"></canvas>
+    <span class="cinema-curtain top" aria-hidden="true"></span>
+    <span class="cinema-curtain bottom" aria-hidden="true"></span>
+    <div class="cinema-ui">
+      <div class="cinema-head">
+        <span class="cinema-kicker" id="cinema-kicker"></span>
+        <h2 class="cinema-title" id="cinema-title"></h2>
+        <p class="cinema-intro" id="cinema-intro"></p>
+        <div class="cinema-fields">
+          <span class="cf-layer"><b id="cinema-layer">000</b><em id="cinema-layer-label"></em></span>
+          <span class="cf-status" id="cinema-status"></span>
+        </div>
+      </div>
+      <p class="cinema-city" id="cinema-city"></p>
+      <div class="cinema-foot">
+        <span class="cinema-cap" id="cinema-cap"></span>
+        <button class="cinema-skip" id="cinema-skip" type="button"></button>
+      </div>
+    </div>
+  </div>
+<div class="warp" id="warp" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/vendor/lenis.min.js"></script>
+<script src="assets/vendor/three.min.js"></script>
+<script src="content/i18n.js"></script>
+<script src="assets/js/arch.js"></script>
+<script src="assets/js/construct.js"></script>
+<script src="assets/js/specimen.js"></script>
+<script src="assets/js/textfx.js"></script>
+<script src="assets/js/city.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/hero.js"></script>
+<script src="assets/js/cube.js"></script>
+</body>
+</html>
