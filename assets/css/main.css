@@ -2413,3 +2413,66 @@ html.js [data-enter="power"].is-in .work-stage{clip-path:inset(0 0 0 0);transfor
 .foot-webgl{display:none;margin:.7rem 0 0;font:500 .58rem/1.4 var(--mono);letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
 html.no-webgl .foot-webgl{display:block}
 html.no-webgl .foot-webgl::before{content:"";display:inline-block;width:6px;height:6px;background:#8a8a8a;margin-right:.7em;vertical-align:1px}
+
+
+/* ============================================================
+   V12 — hands-on viewers + hyperspace jump
+   ============================================================ */
+.stage-hint{
+  position:absolute;right:.7rem;bottom:.5rem;z-index:2;pointer-events:none;
+  font:500 .54rem/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-3);opacity:.75;
+}
+.skill-stage .specimen-canvas,.work-stage .specimen-canvas{touch-action:pan-y}
+@media (max-width:900px){.stage-hint{display:none}}
+
+.warp-lines{
+  position:fixed;inset:-25%;z-index:659;pointer-events:none;opacity:0;
+  background:repeating-conic-gradient(from 0deg at 50% 50%,
+    transparent 0 3.4deg,
+    color-mix(in srgb,var(--ink) 18%,transparent) 3.4deg 3.8deg);
+  -webkit-mask-image:radial-gradient(ellipse at center,transparent 18%,#000 46%,transparent 78%);
+  mask-image:radial-gradient(ellipse at center,transparent 18%,#000 46%,transparent 78%);
+  transform:scale(.7);
+}
+.warp-lines.is-on{animation:warpStreaks .6s var(--mech) both}
+@keyframes warpStreaks{
+  0%{opacity:0;transform:scale(.55) rotate(-3deg)}
+  18%{opacity:.9}
+  100%{opacity:0;transform:scale(2.1) rotate(5deg)}
+}
+@media (prefers-reduced-motion:reduce){.warp-lines{display:none}}
+
+
+/* hero power surge flash */
+.hero-flash{
+  position:fixed;inset:0;z-index:91;pointer-events:none;opacity:0;
+  background:
+    radial-gradient(circle at 62% 48%, color-mix(in srgb,var(--signal) 34%,transparent) 0%, transparent 42%),
+    repeating-conic-gradient(from 0deg at 62% 48%, transparent 0 8deg, color-mix(in srgb,var(--ink) 14%,transparent) 8deg 8.4deg);
+  mix-blend-mode:screen;
+  -webkit-mask-image:radial-gradient(ellipse at 62% 48%,#000 0 55%,transparent 80%);
+  mask-image:radial-gradient(ellipse at 62% 48%,#000 0 55%,transparent 80%);
+}
+.hero-flash.is-on{animation:heroFlash .58s var(--ease) both}
+.hero-flash::before{
+  content:"";position:absolute;left:62%;top:48%;width:78vmax;height:78vmax;border-radius:50%;
+  border:1px solid var(--signal);transform:translate(-50%,-50%) scale(.12);opacity:0;
+}
+.hero-flash::after{
+  content:"";position:absolute;left:62%;top:48%;width:52vmax;height:52vmax;border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--ink) 60%,transparent);transform:translate(-50%,-50%) scale(.2);opacity:0;
+}
+.hero-flash.is-on::before{animation:heroRing .62s var(--mech) both}
+.hero-flash.is-on::after{animation:heroRing .62s var(--mech) .07s both}
+@keyframes heroRing{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.08)}
+  12%{opacity:.95}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+}
+@keyframes heroFlash{
+  0%{opacity:0;transform:scale(.94)}
+  12%{opacity:1}
+  100%{opacity:0;transform:scale(1.04)}
+}
+@media (prefers-reduced-motion:reduce){.hero-flash{display:none}}

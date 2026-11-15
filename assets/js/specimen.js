@@ -316,7 +316,9 @@
     var state = {
       variant: -1, built: null, paused: false, disposed: false, raf: 0,
       t0: performance.now(), last: 0, visible: true, mountT: performance.now(), reduce: false,
-      px: 0, py: 0, tpx: 0, tpy: 0
+      px: 0, py: 0, tpx: 0, tpy: 0,
+      userYaw: 0, userPitch: 0, velYaw: 0, velPitch: 0,
+      drag: false, dragX: 0, dragY: 0, moved: 0, fx: null
     };
     canvas.addEventListener('pointermove', function (e) {
       var r = canvas.getBoundingClientRect();
@@ -324,6 +326,36 @@
       state.tpy = ((e.clientY - r.top) / Math.max(1, r.height) - 0.5) * 2;
     }, { passive: true });
     canvas.addEventListener('pointerleave', function () { state.tpx = 0; state.tpy = 0; });
+    var canDrag = !window.matchMedia('(hover:none),(pointer:coarse)').matches;
+    if (canDrag) canvas.style.cursor = 'grab';
+    function onDragMove(e) {
+      if (!state.drag) return;
+      var dx = e.clientX - state.dragX;
+      var dy = e.clientY - state.dragY;
+      state.dragX = e.clientX; state.dragY = e.clientY;
+      state.moved += Math.abs(dx) + Math.abs(dy);
+      state.userYaw += dx * 0.008;
+      state.userPitch = Math.max(-0.7, Math.min(0.7, state.userPitch + dy * 0.005));
+      state.velYaw = dx * 0.0016;
+      state.velPitch = dy * 0.001;
+      e.preventDefault();
+    }
+    function onDragEnd() {
+      if (!state.drag) return;
+      state.drag = false;
+      canvas.style.cursor = 'grab';
+      window.removeEventListener('pointermove', onDragMove);
+      window.removeEventListener('pointerup', onDragEnd);
+      if (state.moved < 6) burst();
+      state.moved = 0;
+    }
+    if (canDrag) canvas.addEventListener('pointerdown', function (e) {
+      if (state.reduce) return;
+      state.drag = true; state.dragX = e.clientX; state.dragY = e.clientY; state.moved = 0;
+      canvas.style.cursor = 'grabbing';
+      window.addEventListener('pointermove', onDragMove, { passive: false });
+      window.addEventListener('pointerup', onDragEnd);
+    });
     var colors = COL[theme];
     var ro = window.ResizeObserver ? new ResizeObserver(resize) : null;
     var io = null;
@@ -350,10 +382,41 @@
       }
       while (root.children.length) root.remove(root.children[0]);
       renderer.clear(true, true, true);
+      if (state.fx) {
+        root.remove(state.fx.ring);
+        state.fx.ring.geometry.dispose();
+        state.fx.ring.material.dispose();
+        state.fx = null;
+      }
+      state.userYaw = 0;
+      state.userPitch = 0;
+      state.velYaw = 0;
+      state.velPitch = 0;
       state.built = buildVariant(kind, i, colors);
       root.add(state.built.group);
       state.mountT = performance.now();
       renderer.render(scene, camera);
+    }
+
+    function burst() {
+      if (!state.built || state.fx || state.reduce) return;
+      var kids = state.built.group.children.slice();
+      var parts = [];
+      for (var i = 0; i < kids.length; i++) {
+        var o = kids[i];
+        var dir = o.position.clone();
+        if (dir.lengthSq() < 0.0001) {
+          dir.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
+        }
+        dir.normalize();
+        parts.push({ o: o, base: o.position.clone(), dir: dir });
+      }
+      var ring = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(ringPts(1.35, 90)),
+        new THREE.LineBasicMaterial({ color: colors.accent, transparent: true, opacity: 0.9 })
+      );
+      root.add(ring);
+      state.fx = { t0: performance.now(), parts: parts, ring: ring };
     }
 
     function loop(now) {
@@ -367,9 +430,42 @@
       root.scale.setScalar(state.reduce ? 1 : 0.28 + 0.72 * ease);
       state.px += (state.tpx - state.px) * 0.06;
       state.py += (state.tpy - state.py) * 0.06;
-      root.rotation.y = (state.reduce ? 0 : (1 - ease) * 0.9) + state.px * 0.22;
-      root.rotation.x = -state.py * 0.12;
-      if (state.built) state.built.tick(t, dt);
+      if (!state.drag) {
+        state.userYaw += state.velYaw;
+        state.userPitch = Math.max(-0.7, Math.min(0.7, state.userPitch + state.velPitch));
+        state.velYaw *= 0.93;
+        state.velPitch *= 0.93;
+      }
+      root.rotation.y = (state.reduce ? 0 : (1 - ease) * 0.9) + state.px * 0.22 + state.userYaw;
+      root.rotation.x = -state.py * 0.12 + state.userPitch;
+      if (state.fx) {
+        var fp = Math.min(1, (now - state.fx.t0) / 900);
+        var kick = Math.sin(Math.PI * Math.min(1, fp * 1.6)) * 0.52 + (fp > 0.62 ? Math.sin(Math.PI * ((fp - 0.62) / 0.38)) * 0.12 : 0);
+        for (var fi = 0; fi < state.fx.parts.length; fi++) {
+          var part = state.fx.parts[fi];
+          part.o.position.set(
+            part.base.x + part.dir.x * kick,
+            part.base.y + part.dir.y * kick,
+            part.base.z + part.dir.z * kick
+          );
+          part.o.rotation.z = kick * 0.35;
+        }
+        state.fx.ring.scale.setScalar(1 + fp * 2.2);
+        state.fx.ring.material.opacity = Math.max(0, 0.9 - fp);
+        if (fp >= 1) {
+          for (var fi2 = 0; fi2 < state.fx.parts.length; fi2++) {
+            var pt = state.fx.parts[fi2];
+            pt.o.position.copy(pt.base);
+            pt.o.rotation.z = 0;
+          }
+          root.remove(state.fx.ring);
+          state.fx.ring.geometry.dispose();
+          state.fx.ring.material.dispose();
+          state.fx = null;
+        }
+      } else if (state.built) {
+        state.built.tick(t, dt);
+      }
       renderer.render(scene, camera);
     }
 
@@ -393,6 +489,7 @@
     return {
       setVariant: setVariant,
       replay: function () { state.mountT = performance.now(); },
+      burst: burst,
       setTheme: applyTheme,
       pause: function () { state.paused = true; },
       resume: function () { state.paused = false; },

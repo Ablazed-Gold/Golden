@@ -3,7 +3,7 @@
 个人博客 / 作品集。深色工业界面，单一信号黄，**整页 3D**：加载页、首屏、章节构造、演示图、魔方全部是真 3D 场景，文字与画面用机械动效组装进场；首页只留必要信息，往下滚才逐章展开。
 
 在线地址：**https://ablazed-gold.github.io/Golden/** （GitHub Pages，免费域名）
-根入口：**https://ablazed-gold.github.io/**（会跳转到 `/Golden/`；页脚有 `V11 · BUILD 2026.11.15` 版本戳）
+根入口：**https://ablazed-gold.github.io/**（会跳转到 `/Golden/`；页脚有 `V12 · BUILD 2026.11.15` 版本戳）
 仓库：https://github.com/Ablazed-Gold/Golden
 
 打开方式：**双击 `index.html`**（不需要构建、不需要服务器）。离线也能用，字体与图片都已本地化。

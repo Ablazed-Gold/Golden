@@ -12,7 +12,7 @@
     px: 0, py: 0, tpx: 0, tpy: 0, scroll: 0, reduce: false,
     scene: null, camera: null, renderer: null, canvas: null,
     world: null, rings: [], plates: [], core: null, points: [], dial: null,
-    scan: null, scanT: -99, hover: 0, accentMats: []
+    scan: null, scanT: -99, hover: 0, accentMats: [], bursts: [], kick: 0
   };
 
   function accentMat(opacity) {
@@ -210,6 +210,54 @@
     S.world.scale.setScalar(small ? 0.6 : 1.04);
   }
 
+  function ringCircle(r, seg) {
+    var pts = [];
+    for (var i = 0; i <= seg; i++) {
+      var a = (i / seg) * Math.PI * 2;
+      pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0));
+    }
+    return new THREE.BufferGeometry().setFromPoints(pts);
+  }
+
+  function pulse() {
+    if (!S.mounted || S.reduce || !S.world) return;
+    var th = CC[S.theme];
+    var count = 220;
+    var pos = new Float32Array(count * 3);
+    var col = new Float32Array(count * 3);
+    var vel = [];
+    var sig = new THREE.Color(th.sig), ink = new THREE.Color(th.ink);
+    for (var i = 0; i < count; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var e = Math.acos(2 * Math.random() - 1);
+      var speed = 1.6 + Math.random() * 4.2;
+      var dir = new THREE.Vector3(
+        Math.sin(e) * Math.cos(a),
+        Math.sin(e) * Math.sin(a) * 0.62,
+        Math.cos(e) * 0.7
+      );
+      pos[i * 3] = 0; pos[i * 3 + 1] = 0; pos[i * 3 + 2] = 0;
+      var c = Math.random() < 0.28 ? sig : ink;
+      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+      vel.push(dir.multiplyScalar(speed));
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    var pmat = new THREE.PointsMaterial({ size: 0.07, vertexColors: true, transparent: true, opacity: 1, sizeAttenuation: true });
+    var pts = new THREE.Points(geo, pmat);
+    S.world.add(pts);
+    var ring = new THREE.Line(ringCircle(1.2, 96), accentMat(0.95));
+    ring.position.z = 0.4;
+    S.world.add(ring);
+    var ring2 = new THREE.Line(ringCircle(0.8, 72), mat(th.ink, 0.55, true));
+    ring2.position.z = 0.45;
+    S.world.add(ring2);
+    S.bursts.push({ pts: pts, ring: ring, ring2: ring2, vel: vel, life: 0 });
+    S.kick = 1.15;
+    try { window.dispatchEvent(new CustomEvent('goldenhero:pulse')); } catch (err) {}
+  }
+
   function frame(now) {
     S.raf = requestAnimationFrame(frame);
     if (S.paused) return;
@@ -221,7 +269,8 @@
     S.py += (S.tpy - S.py) * 0.06;
 
     var sy = S.scroll;
-    S.camera.position.z = 11 - Math.min(1, sy / 1800) * 3.2;
+    S.camera.position.z = 11 - Math.min(1, sy / 1800) * 3.2 - S.kick * 0.5;
+    S.kick *= 0.88;
     S.world.rotation.y = S.px * 0.32 + sy * 0.0012;
     S.world.rotation.x = -0.08 + S.py * 0.18;
     S.world.position.y = (window.innerWidth < 900 ? 0.4 : 0) + Math.sin(t * 0.5) * 0.12 - Math.min(sy / 1400, 1) * 1.6;
@@ -272,6 +321,39 @@
       S.scan.material.opacity = 0;
     }
 
+    if (S.bursts.length) {
+      for (var bi = S.bursts.length - 1; bi >= 0; bi--) {
+        var bst = S.bursts[bi];
+        bst.life += dt;
+        var arr = bst.pts.geometry.attributes.position;
+        for (var pi = 0; pi < bst.vel.length; pi++) {
+          var v = bst.vel[pi];
+          arr.setXYZ(pi,
+            arr.getX(pi) + v.x * dt,
+            arr.getY(pi) + v.y * dt,
+            arr.getZ(pi) + v.z * dt);
+          v.multiplyScalar(0.965);
+        }
+        arr.needsUpdate = true;
+        bst.pts.material.opacity = Math.max(0, 1 - bst.life / 1.25);
+        bst.ring.scale.setScalar(1 + bst.life * 3.6);
+        bst.ring.material.opacity = Math.max(0, 0.95 - bst.life / 0.85);
+        if (bst.ring2) {
+          bst.ring2.scale.setScalar(1 + bst.life * 2.2);
+          bst.ring2.material.opacity = Math.max(0, 0.55 - bst.life);
+        }
+        if (bst.life > 1.3) {
+          S.world.remove(bst.pts);
+          S.world.remove(bst.ring);
+          if (bst.ring2) S.world.remove(bst.ring2);
+          bst.pts.geometry.dispose(); bst.pts.material.dispose();
+          bst.ring.geometry.dispose();
+          if (bst.ring2) { bst.ring2.geometry.dispose(); bst.ring2.material.dispose(); }
+          S.bursts.splice(bi, 1);
+        }
+      }
+    }
+
     S.renderer.render(S.scene, S.camera);
   }
 
@@ -299,9 +381,17 @@
       window.addEventListener('scroll', function () {
         S.scroll = window.scrollY || 0;
       }, { passive: true });
+      var heroEl = document.getElementById('hero');
+      if (heroEl) {
+        heroEl.addEventListener('pointerdown', function (e) {
+          if (e.target.closest && e.target.closest('a,button')) return;
+          pulse();
+        }, { passive: true });
+      }
       if (S.reduce) { S.renderer.render(S.scene, S.camera); return; }
       S.raf = requestAnimationFrame(frame);
     },
+    pulse: pulse,
     pause: function () { S.paused = true; },
     resume: function () { S.paused = false; },
     setTheme: function (theme) { S.theme = theme; if (S.mounted) applyTheme(); },
