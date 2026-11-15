@@ -7,3 +7,4 @@ Thumbs.db
 tools/*.py
 tools/qa/live*.js
 tools/qa/rootcheck.js
+share/
