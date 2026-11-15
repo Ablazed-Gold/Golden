@@ -162,7 +162,7 @@
     if (ov) { ov.hidden = true; ov.classList.remove('is-on', 'is-out'); }
     var r = $('#fab-replay');
     if (r) {
-      var can = active && !!(window.__hasWebGL && window.GoldenCity && window.innerWidth >= 900 && !reduce);
+      var can = active && !!(window.__hasWebGL && window.GoldenCity && !reduce);
       r.style.display = can ? '' : 'none';
     }
   }
@@ -208,7 +208,7 @@
   function startFabCinema(replay) {
     if (cinema.playing) return;
     if (location.search.indexOf('nocine') >= 0) { markFabDone(false); return; }
-    if (!window.GoldenCity || reduce || window.innerWidth < 900 || !window.__hasWebGL) {
+    if (!window.GoldenCity || reduce || !window.__hasWebGL) {
       markFabDone(false);
       return;
     }
@@ -259,7 +259,7 @@
     });
     var fab = document.getElementById('fab');
     if (!fab) return;
-    if (!window.__hasWebGL || reduce || window.innerWidth < 900) { markFabDone(false); return; }
+    if (!window.__hasWebGL || reduce) { markFabDone(false); return; }
     if (!('IntersectionObserver' in window)) { return; }
     var io = new IntersectionObserver(function (entries) {
       if (entries[0].isIntersecting && !cinema.played) {
@@ -335,6 +335,7 @@
     renderFabCinema();
     syncArch();
     prepareText();
+    webglNotice();
     if (state.booted) setTimeout(revealVisible, 60);
     if (persist) { try { localStorage.setItem('golden-lang', state.lang); } catch (e) {} }
     applyTheme(state.theme, false);
@@ -622,20 +623,20 @@
     } catch (e) { archApi = null; }
   }
   var specimens = { skills: null, works: null, fab: null };
-  function mountSpecimens() {
-    if (!window.GoldenSpecimen) return;
-    $$('.specimen-canvas[data-specimen]').forEach(function (cv) {
-      var kind = cv.getAttribute('data-specimen');
-      if (specimens[kind]) return;
-      var api = window.GoldenSpecimen.mount(cv, kind, { theme: state.theme });
-      if (!api) return;
-      specimens[kind] = api;
-      var wrap = cv.closest('.skill-stage, .work-stage, .fab-art');
-      if (wrap) wrap.classList.add('has-specimen');
-    });
-    if (specimens.skills) specimens.skills.setVariant(state.skill);
-    if (specimens.works) specimens.works.setVariant(state.work);
-    if (specimens.fab) specimens.fab.setVariant(0);
+  function ensureSpecimen(kind) {
+    if (specimens[kind] || !window.GoldenSpecimen) return;
+    /* on phones the fab block is replaced by the city cinema; skip one WebGL context */
+    if (kind === 'fab' && window.innerWidth < 900) return;
+    var cv = document.querySelector('.specimen-canvas[data-specimen="' + kind + '"]');
+    if (!cv) return;
+    var api = window.GoldenSpecimen.mount(cv, kind, { theme: state.theme });
+    if (!api) return;
+    specimens[kind] = api;
+    var wrap = cv.closest('.skill-stage, .work-stage, .fab-art');
+    if (wrap) wrap.classList.add('has-specimen');
+    if (kind === 'skills') api.setVariant(state.skill);
+    else if (kind === 'works') api.setVariant(state.work);
+    else api.setVariant(0);
   }
 
   function renderKinetic() {
@@ -1144,8 +1145,18 @@
     setTimeout(function () { if (!done) { setTarget(100); setTimeout(finish, 200); } }, MIN + 4000);
   }
 
+  function webglNotice() {
+    if (window.__hasWebGL) return;
+    document.documentElement.classList.add('no-webgl');
+    var el = $('#foot-webgl');
+    if (el) el.textContent = state.lang === 'en'
+      ? '3D off · this browser has no WebGL / hardware acceleration'
+      : '3D 已关闭 · 浏览器未启用 WebGL / 硬件加速';
+  }
+
   function startSite() {
     if (state.booted) return;
+    webglNotice();
     state.booted = true;
     document.body.classList.add('is-ready');
     setTimeout(function () {
@@ -1155,7 +1166,6 @@
       }
       ensureArch();
       if (archApi && archApi.pause) archApi.pause();
-      mountSpecimens();
       if (window.GoldenCube && window.__hasWebGL) {
         try {
           var api = window.GoldenCube.mount($('#cube-root'));
@@ -1452,8 +1462,9 @@
             setTimeout(function () { pg.classList.remove('is-entering'); }, 1400);
           }
         }
-        if (en.target.id === 'skills' && specimens.skills && specimens.skills.replay) specimens.skills.replay();
-        if (en.target.id === 'works' && specimens.works && specimens.works.replay) specimens.works.replay();
+        if (en.target.id === 'skills') { ensureSpecimen('skills'); if (specimens.skills && specimens.skills.replay) specimens.skills.replay(); }
+        if (en.target.id === 'works') { ensureSpecimen('works'); if (specimens.works && specimens.works.replay) specimens.works.replay(); }
+        if (en.target.id === 'fab') ensureSpecimen('fab');
         io.unobserve(en.target);
       });
     }, { threshold: 0.14, rootMargin: '0px 0px -5% 0px' });

@@ -293,16 +293,16 @@
   /* ---------------------------------------------------------------- */
   function mount(canvas, kind, opts) {
     if (!THREE || !window.__hasWebGL || !canvas) return null;
-    if (window.innerWidth < 900) return null;
     var theme = (opts && opts.theme) || (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
     var renderer;
     try {
       renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
     } catch (e) { return null; }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.3 : 1.7));
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(36, 1, 0.1, 60);
     var camZ = kind === 'fab' ? 4.4 : (kind === 'skills' || kind === 'works' ? 4.3 : 3.2);
+    if (window.innerWidth < 900) camZ *= 1.18;
     camera.position.set(0, 0.1, camZ);
     scene.add(new THREE.HemisphereLight(0xffffff, 0x242424, 1.1));
     var key = new THREE.DirectionalLight(0xffffff, 1.35);

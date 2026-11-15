@@ -187,14 +187,13 @@
   function mount() {
     if (S.mounted) return;
     if (!window.__hasWebGL) return;
-    if (window.innerWidth < 900) return;
     var canvas = document.getElementById('construct-canvas');
     if (!canvas) return;
     S.canvas = canvas;
     try {
       S.renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
     } catch (e) { return; }
-    S.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
+    S.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.25 : 1.7));
     S.reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     S.scene = new THREE.Scene();
     S.camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);

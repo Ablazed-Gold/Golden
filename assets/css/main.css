@@ -1922,7 +1922,6 @@ html[data-theme="light"] .poster-scan{mix-blend-mode:normal;opacity:.2}
   .community-poster{justify-self:start;max-width:340px}
 }
 @media (max-width:900px){
-  .construct-canvas{display:none}
 }
 @media (max-width:720px){
   .hero-foot{flex-direction:column;align-items:flex-start;gap:1.2rem}
@@ -2216,8 +2215,17 @@ html[data-theme="light"] .specimen-canvas{opacity:.95}
 html.is-cinema,html.is-cinema body{overflow:hidden}
 html.is-cinema .rail,html.is-cinema .nav,html.is-cinema .topbar{opacity:0;pointer-events:none;transition:opacity .3s}
 @media (max-width:900px){
-  .fab-cinema{display:none}
-  .fab-replay{display:none !important}
+  .cinema-ui{padding:18px}
+  .cinema-title{font-size:clamp(2.1rem,9vw,4rem)}
+  .cinema-intro{font-size:.82rem;margin-top:1rem}
+  .cinema-city{font-size:clamp(4.2rem,24vw,9rem);bottom:120px;left:18px}
+  .cinema-cap{display:none}
+  .cinema-fields{font-size:.56rem;gap:.7rem;flex-wrap:wrap}
+  .cinema-skip{height:34px;padding:0 .8rem;font-size:.6rem}
+  .stage-hud{top:.5rem;left:.5rem;right:.5rem;font-size:.5rem;letter-spacing:.12em;gap:.45rem}
+  .stage-hud > span:first-child{display:none}
+  .stage-hud b{white-space:nowrap}
+  .stage-hud em{padding:.26em .4em;font-size:.5rem}
 }
 @media (prefers-reduced-motion:reduce){
   .fab-cinema{display:none}
@@ -2399,3 +2407,9 @@ html.js [data-enter="power"].is-in .work-stage{clip-path:inset(0 0 0 0);transfor
   margin:.7rem 0 0;font:500 .58rem/1 var(--mono);letter-spacing:.22em;
   text-transform:uppercase;color:var(--ink-3);
 }
+
+
+/* shown only when the browser cannot create a WebGL context */
+.foot-webgl{display:none;margin:.7rem 0 0;font:500 .58rem/1.4 var(--mono);letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+html.no-webgl .foot-webgl{display:block}
+html.no-webgl .foot-webgl::before{content:"";display:inline-block;width:6px;height:6px;background:#8a8a8a;margin-right:.7em;vertical-align:1px}

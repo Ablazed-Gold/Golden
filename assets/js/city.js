@@ -264,6 +264,7 @@
 
   function buildCity() {
     var rnd = rng(20261115);
+    var mobile = window.innerWidth < 900;
     var data = [];
     var step = 0.44;
     for (var gx = -7.4; gx <= 7.4; gx += step) {
@@ -281,6 +282,7 @@
         if (Math.hypot(x + 4.8, z - 4.2) < 0.8) continue;       /* dome */
         var chance = d < 4.6 ? 0.8 : 0.58;
         if (rnd() > chance) continue;
+        if (mobile && rnd() < 0.4) continue;
         var base = Math.max(0.35, 2.5 - d * 0.30);
         var h = base * (0.45 + rnd() * 0.85);
         if (rnd() < 0.06) h *= 1.7;
@@ -478,14 +480,13 @@
 
   function mount(canvas) {
     if (S.mounted || !THREE || !window.__hasWebGL || !canvas) return null;
-    if (window.innerWidth < 900) return null;
     var renderer;
     try {
       renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
     } catch (e) { return null; }
     S.canvas = canvas;
     S.reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.2 : 1.7));
     S.renderer = renderer;
     S.theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
     S.scene = new THREE.Scene();
