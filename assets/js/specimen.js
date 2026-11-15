@@ -341,10 +341,19 @@
       if (state.disposed) return;
       if (i === state.variant) return;
       state.variant = i;
-      if (state.built) { root.remove(state.built.group); state.built.dispose(); }
+      /* hard cut: remove and dispose every previous model, then clear the frame
+         before the new one is drawn — no ghost/stacked viewers on any GPU */
+      if (state.built) {
+        root.remove(state.built.group);
+        state.built.dispose();
+        state.built = null;
+      }
+      while (root.children.length) root.remove(root.children[0]);
+      renderer.clear(true, true, true);
       state.built = buildVariant(kind, i, colors);
       root.add(state.built.group);
       state.mountT = performance.now();
+      renderer.render(scene, camera);
     }
 
     function loop(now) {
